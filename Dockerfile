@@ -6,7 +6,9 @@
 
 
 ARG BRANCH=master
+
 FROM centos:centos7 as yum_cache
+
 ARG BRANCH
 RUN echo -e "[metwork_${BRANCH}]\n\
 name=Metwork Continuous Integration Branch ${BRANCH}\n\
@@ -17,7 +19,9 @@ metadata_expire=0\n" >/etc/yum.repos.d/metwork.repo
 ARG CACHEBUST=0
 RUN yum clean all && yum --disablerepo=* --enablerepo=metwork_${BRANCH} -q list metwork-mfext* 2>/dev/null |sort |md5sum |awk '{print $1;}' > /tmp/yum_cache
 
+
 FROM centos:centos7
+
 ARG BRANCH
 COPY --from=yum_cache /etc/yum.repos.d/metwork.repo /etc/yum.repos.d/
 COPY --from=yum_cache /tmp/yum_cache .
